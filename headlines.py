@@ -11,21 +11,9 @@ RSS_FEEDS = {
 						
 
 @app.route("/")
-@app.route("/bbc")
-def bbc():
-	return get_news('bbc')
-	
-@app.route("/cnn")
-def cnn():
-	return get_news('cnn')
-	
-@app.route("/fox")
-def fox():
-	return get_news('fox')
-
-@app.route("/iol")
-def iol():
-	return get_news('iol')
+@app.route("/<publication>")
+def bbc(publication='bbc'):
+	return get_news(publication)
 	
 def get_news(publication):
 	feed = feedparser.parse(RSS_FEEDS[publication])
