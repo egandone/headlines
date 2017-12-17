@@ -1,3 +1,4 @@
+import os
 import feedparser
 from flask import Flask
 
@@ -9,6 +10,9 @@ RSS_FEEDS = {
 	'fox': 'http://feeds.foxnews.com/foxnews/latest',
 	'iol': 'http://www.iol.co.za/cmlink/1.640'} 
 						
+
+# Get port from environment variable or choose 9099 as local default
+port = int(os.getenv("PORT", 5000))
 
 @app.route("/")
 @app.route("/<publication>")
@@ -28,5 +32,5 @@ def get_news(publication):
 	</html>""".format(first_article.get("title"), first_article.get("published"), first_article.get("summary"))
 	
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	app.run(host="0.0.0.0", port=port, debug=False)
 
