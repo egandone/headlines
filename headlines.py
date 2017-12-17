@@ -1,6 +1,7 @@
 import os
 import feedparser
 from flask import Flask
+from flask import send_from_directory
 
 app = Flask(__name__)
 
@@ -18,7 +19,12 @@ port = int(os.getenv("PORT", 5000))
 @app.route("/<publication>")
 def bbc(publication='bbc'):
 	return get_news(publication)
-	
+
+@app.route('/favicon.ico')
+def favicon():
+	print(app.root_path)
+	return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 def get_news(publication):
 	feed = feedparser.parse(RSS_FEEDS[publication])
 	first_article = feed['entries'][0]
