@@ -30,7 +30,7 @@ def get_news(publication):
 	first_article = feed['entries'][0]
 	return """<html>
 	<body>
-		<h1>Headlines</h1>
+		<h1>Headlines v1 [2018-01-27]</h1>
 		<b>{0}</b><br/>
 		<i>{1}</i><br/>
 		<p>{2}</p><br/>
