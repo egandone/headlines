@@ -4,10 +4,18 @@
 	</head>
 	<body>
 		<h1>Headlines v4.0.0 [2018-01-27]</h1>
+		<h2>Current weather</h2>
+		<form>
+			<input type="text" name="city" placeholder="weather search" />
+			<input type="submit" value="Submit" />
+		</form>
+		<p>City: <b>{{weather.city}}, {{weather.country}}</b></p>
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;{{weather.description}} |{{weather.temperature}}&deg;C</p>
 		<form>
 			<input type="text" name="publication" placeholder="search" />
 			<input type="submit" value="Submit" />
 		</form>
+		<p>Feed: <b>{{feed}}</b></p>
 		{% for article in articles %}
 			<b><a href="{{article.link}}">{{article.title}}</a></b><br />
 			<i>{{article.published}}</i><br />
