@@ -3,6 +3,7 @@ import feedparser
 from flask import Flask
 from flask import send_from_directory
 from flask import render_template
+from flask import request
 
 app = Flask(__name__)
 
@@ -17,18 +18,19 @@ RSS_FEEDS = {
 port = int(os.getenv("PORT", 5000))
 
 @app.route("/")
-@app.route("/<publication>")
-def bbc(publication='bbc'):
-	return get_news(publication)
+def get_news():
+	query = request.args.get("publication")
+	if not query or query.lower() not in RSS_FEEDS:
+		query = 'bbc'
+	publication = query.lower()
+	feed = feedparser.parse(RSS_FEEDS[publication])
+	return render_template("home.html", articles=feed['entries'])
 
 @app.route('/favicon.ico')
 def favicon():
 	print(app.root_path)
 	return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-def get_news(publication):
-	feed = feedparser.parse(RSS_FEEDS[publication])
-	return render_template("home.html", articles=feed['entries'])
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port=port, debug=False)
