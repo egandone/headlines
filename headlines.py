@@ -17,9 +17,9 @@ RSS_FEEDS = {
 # Get port from environment variable or choose 9099 as local default
 port = int(os.getenv("PORT", 5000))
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def get_news():
-	query = request.args.get("publication")
+	query = request.form.get("publication")
 	if not query or query.lower() not in RSS_FEEDS:
 		query = 'bbc'
 	publication = query.lower()
