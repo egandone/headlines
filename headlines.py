@@ -8,6 +8,9 @@ from flask import render_template
 from flask import request
 
 open_weather_map_apikey = '8fc0349f33ab53f5381af6bddb741586'
+OPEN_WEATHER_MAP_URL = 'http://api.openweathermap.org/data/2.5/weather?appid={}&units=metric'.format(open_weather_map_apikey)
+open_exchange_apikey = '72418b2c9f5e429f8ebe531076f6fbe5'
+OPEN_EXCHANGE_URL = 'https://openexchangerates.org/api/latest.json?app_id={}'.format(open_exchange_apikey)
 
 RSS_FEEDS = {
   'bbc': 'http://feeds.bbci.co.uk/news/rss.xml',
@@ -16,7 +19,9 @@ RSS_FEEDS = {
   'iol': 'http://www.iol.co.za/cmlink/1.640'}
 
 DEFAULTS = {'publication':'bbc',
-            'city':'Toronto,CA'}
+            'city':'Toronto,CA',
+            'currency_from':'CAD',
+            'currency_to':'USD'}
 
 app = Flask(__name__)
 
@@ -25,12 +30,15 @@ app = Flask(__name__)
 port = int(os.getenv("PORT", 5000))
 
 @app.route("/")
-def get_news():
+def home():
   publication = get_arg("publication", RSS_FEEDS).lower()
   feed = feedparser.parse(RSS_FEEDS[publication])
   city = get_arg("city")
   weather = get_weather(city)
-  return render_template("home.html", feed=publication, articles=feed['entries'], weather=weather)
+  currency_from = get_arg("currency_from")
+  currency_to = get_arg("currency_to")
+  rate,currencies = get_rate(currency_from, currency_to)
+  return render_template("home.html", feed=publication, articles=feed['entries'], weather=weather, currency_from=currency_from, currency_to=currency_to, rate=rate, currencies=sorted(currencies))
 
 def get_arg(name, valid_opts=None):
   arg = request.args.get(name)
@@ -44,9 +52,9 @@ def favicon():
   return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 def get_weather(query):
-  api_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid={}'
+  api_url = OPEN_WEATHER_MAP_URL + '&q={}'
   query = urllib.request.quote(query)
-  url = api_url.format(query, open_weather_map_apikey)
+  url = api_url.format(query)
   response_bytes = urllib.request.urlopen(url, timeout=1).read()
   response_string = response_bytes.decode("utf-8")
   response_dict = json.loads(response_string)
@@ -57,6 +65,16 @@ def get_weather(query):
       "city":response_dict["name"],
       "country":response_dict["sys"]["country"]}
   return weather
+
+def get_rate(from_currency, to_currency):
+  all_currencies = urllib.request.urlopen(OPEN_EXCHANGE_URL).read()
+  all_currencies = all_currencies.decode("utf-8")
+  all_currencies = json.loads(all_currencies)
+  rates = all_currencies["rates"]
+  from_rate = rates[from_currency.upper()]
+  to_rate = rates[to_currency.upper()]
+  return (to_rate / from_rate, rates.keys())
+
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=port, debug=False)
