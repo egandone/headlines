@@ -48,7 +48,8 @@ def get_weather(query):
   query = urllib.request.quote(query)
   url = api_url.format(query, open_weather_map_apikey)
   response_bytes = urllib.request.urlopen(url, timeout=1).read()
-  response_dict = json.loads(response_bytes)
+  response_string = response_bytes.decode("utf-8")
+  response_dict = json.loads(response_string)
   weather = None
   if response_dict.get("weather"):
     weather = {"description":response_dict["weather"][0]["description"],
